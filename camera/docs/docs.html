@@ -17247,10 +17247,10 @@ always be included if the MANUAL_<wbr/>SENSOR capability is available.<wbr/></p>
                     <span class="entry_type_enum_name">BURST_CAPTURE (v3.2)</span>
                     <span class="entry_type_enum_optional">[optional]</span>
                     <span class="entry_type_enum_notes"><p>The camera device supports capturing high-resolution images at &gt;= 20 frames per
-second,<wbr/> in at least the uncompressed YUV format,<wbr/> when post-processing settings are set
-to FAST.<wbr/> Additionally,<wbr/> maximum-resolution images can be captured at &gt;= 10 frames
-per second.<wbr/>  Here,<wbr/> 'high resolution' means at least 8 megapixels,<wbr/> or the maximum
-resolution of the device,<wbr/> whichever is smaller.<wbr/></p></span>
+second,<wbr/> in at least the uncompressed YUV format,<wbr/> when post-processing settings are
+set to FAST.<wbr/> Additionally,<wbr/> all image resolutions less than 24 megapixels can be
+captured at &gt;= 10 frames per second.<wbr/> Here,<wbr/> 'high resolution' means at least 8
+megapixels,<wbr/> or the maximum resolution of the device,<wbr/> whichever is smaller.<wbr/></p></span>
                   </li>
                   <li>
                     <span class="entry_type_enum_name">YUV_REPROCESSING (v3.2)</span>
@@ -17482,6 +17482,24 @@ physical camera.<wbr/></p>
 <li><a href="#static_android.lens.poseReference">android.<wbr/>lens.<wbr/>pose<wbr/>Reference</a></li>
 <li><a href="#static_android.lens.distortion">android.<wbr/>lens.<wbr/>distortion</a></li>
 </ul>
+<p>The field of view of all non-RAW physical streams must be the same or as close as
+possible to that of non-RAW logical streams.<wbr/> If the requested FOV is outside of the
+range supported by the physical camera,<wbr/> the physical stream for that physical camera
+will use either the maximum or minimum scaler crop region,<wbr/> depending on which one is
+closer to the requested FOV.<wbr/> For example,<wbr/> for a logical camera with wide-tele lens
+configuration where the wide lens is the default,<wbr/> if the logical camera's crop region
+is set to maximum,<wbr/> the physical stream for the tele lens will be configured to its
+maximum crop region.<wbr/> On the other hand,<wbr/> if the logical camera has a normal-wide lens
+configuration where the normal lens is the default,<wbr/> when the logical camera's crop
+region is set to maximum,<wbr/> the FOV of the logical streams will be that of the normal
+lens.<wbr/> The FOV of the physical streams for the wide lens will be the same as the
+logical stream,<wbr/> by making the crop region smaller than its active array size to
+compensate for the smaller focal length.<wbr/></p>
+<p>Even if the underlying physical cameras have different RAW characteristics (such as
+size or CFA pattern),<wbr/> a logical camera can still advertise RAW capability.<wbr/> In this
+case,<wbr/> when the application configures a RAW stream,<wbr/> the camera device will make sure
+the active physical camera will remain active to ensure consistent RAW output
+behavior,<wbr/> and not switch to other physical cameras.<wbr/></p>
 <p>To maintain backward compatibility,<wbr/> the capture request and result metadata tags
 required for basic camera functionalities will be solely based on the
 logical camera capabiltity.<wbr/> Other request and result metadata tags,<wbr/> on the other
@@ -17601,10 +17619,15 @@ same way as a physical camera device based on its hardware level and capabilitie
 It's recommended that its feature set is superset of that of individual physical cameras.<wbr/></p>
 <ul>
 <li>
-<p>In camera1 API,<wbr/> to maintain application compatibility,<wbr/> for each {logical_<wbr/>camera_<wbr/>id,<wbr/>
-physical_<wbr/>camera_<wbr/>1_<wbr/>id,<wbr/> physical_<wbr/>camera_<wbr/>2_<wbr/>id,<wbr/> ...<wbr/>} combination,<wbr/> where logical_<wbr/>camera_<wbr/>id
-is composed of physical_<wbr/>camera_<wbr/>N_<wbr/>id,<wbr/> camera framework will only advertise one camera id
-(within the combination) that is frontmost in the HAL published camera id list.<wbr/></p>
+<p>In camera1 API,<wbr/> to maintain application compatibility,<wbr/> for each camera facing,<wbr/> there
+may be one or more {logical_<wbr/>camera_<wbr/>id,<wbr/> physical_<wbr/>camera_<wbr/>1_<wbr/>id,<wbr/> physical_<wbr/>camera_<wbr/>2_<wbr/>id,<wbr/> ...<wbr/>}
+combinations,<wbr/> where logical_<wbr/>camera_<wbr/>id is composed of physical_<wbr/>camera_<wbr/>N_<wbr/>id,<wbr/> camera
+framework will only advertise one camera id
+(within the combinations for the particular facing) that is frontmost in the HAL
+published camera id list.<wbr/>
+For example,<wbr/> if HAL advertises 6 back facing camera IDs (ID0 to ID5),<wbr/> among which ID4
+and ID5 are logical cameras backed by ID0+ID1 and ID2+ID3 respectively.<wbr/> In this case,<wbr/>
+only ID0 will be available for camera1 API to use.<wbr/></p>
 </li>
 <li>
 <p>Camera HAL is strongly recommended to advertise camera devices with best feature,<wbr/>
@@ -17614,7 +17637,8 @@ power,<wbr/> performance,<wbr/> and latency tradeoffs at the front of the camera
 <p>Camera HAL may switch between physical cameras depending on focalLength or cropRegion.<wbr/>
 If physical cameras have different sizes,<wbr/> HAL must maintain a single logical camera
 active<wbr/>Array<wbr/>Size/<wbr/>pixel<wbr/>Array<wbr/>Size/<wbr/>pre<wbr/>Correction<wbr/>Active<wbr/>Array<wbr/>Size,<wbr/> and must do proper mapping
-between logical camera and underlying physical cameras.<wbr/></p>
+between logical camera and underlying physical cameras for all related metadata tags,<wbr/>
+such as crop region,<wbr/> 3A regions,<wbr/> and intrinsicCalibration.<wbr/></p>
 </li>
 <li>
 <p>Starting from HIDL ICameraDevice version 3.<wbr/>5,<wbr/> camera HAL must support
@@ -19641,6 +19665,12 @@ configurations based on the hardware level
 </table>
 <p>Refer to <a href="#static_android.request.availableCapabilities">android.<wbr/>request.<wbr/>available<wbr/>Capabilities</a> for additional
 mandatory stream configurations on a per-capability basis.<wbr/></p>
+<p>Exception on 176x144 (QCIF) resolution: camera devices usually have a fixed capability for
+downscaling from larger resolution to smaller,<wbr/> and the QCIF resolution sometimes is not
+fully supported due to this limitation on devices with high-resolution image sensors.<wbr/>
+Therefore,<wbr/> trying to configure a QCIF resolution stream together with any other
+stream larger than 1920x1080 resolution (either width or height) might not be supported,<wbr/>
+and capture session creation will fail if it is not.<wbr/></p>
             </td>
           </tr>
 
@@ -20026,6 +20056,12 @@ if the sensor maximum resolution is 3280x2464,<wbr/> if the maximum JPEG size ha
 ratio 4:3,<wbr/> and the JPEG encoder alignment requirement is 16,<wbr/> the maximum JPEG size will be
 3264x2448.<wbr/></li>
 </ul>
+<p>Exception on 176x144 (QCIF) resolution: camera devices usually have a fixed capability on
+downscaling from larger resolution to smaller ones,<wbr/> and the QCIF resolution can sometimes
+not be fully supported due to this limitation on devices with high-resolution image
+sensors.<wbr/> Therefore,<wbr/> trying to configure a QCIF resolution stream together with any other
+stream larger than 1920x1080 resolution (either width or height) might not be supported,<wbr/>
+and capture session creation will fail if it is not.<wbr/></p>
             </td>
           </tr>
 
@@ -29215,7 +29251,8 @@ devices.<wbr/> Instead,<wbr/> every request that includes a JPEG-format output t
 as triggering a still capture,<wbr/> internally executing a precapture trigger.<wbr/>  This may
 fire the flash for flash power metering during precapture,<wbr/> and then fire the flash
 for the final capture,<wbr/> if a flash is available on the device and the AE mode is set to
-enable the flash.<wbr/></p></span>
+enable the flash.<wbr/></p>
+<p>Devices that initially shipped with Android version <a href="https://developer.android.com/reference/android/os/Build/VERSION_CODES.html#Q">Q</a> or newer will not include any LEGACY-level devices.<wbr/></p></span>
                   </li>
                   <li>
                     <span class="entry_type_enum_name">3 (v3.2)</span>
@@ -29322,7 +29359,7 @@ boolean isHardwareLevelSupported(CameraCharacteristics c,<wbr/> int requiredLeve
 <li><code>LEVEL_<wbr/>3</code> devices additionally support YUV reprocessing and RAW image capture,<wbr/> along
   with additional output stream configurations.<wbr/></li>
 <li><code>EXTERNAL</code> devices are similar to <code>LIMITED</code> devices with exceptions like some sensor or
-  lens information not reorted or less stable framerates.<wbr/></li>
+  lens information not reported or less stable framerates.<wbr/></li>
 </ul>
 <p>See the individual level enums for full descriptions of the supported capabilities.<wbr/>  The
 <a href="#static_android.request.availableCapabilities">android.<wbr/>request.<wbr/>available<wbr/>Capabilities</a> entry describes the device's capabilities at a
