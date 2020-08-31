@@ -1,5 +1,45 @@
 // Build the unit tests for audio_utils
 
+cc_binary {
+    name: "biquad_filter",
+
+    srcs: [
+        "biquad_filter.cpp"
+    ],
+
+    shared_libs: [
+        "libaudioutils",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+}
+
+cc_test {
+    name: "biquad_filter_tests",
+
+    srcs: [
+        "biquad_filter_tests.cpp",
+    ],
+
+    header_libs: [
+        "libaudioutils_headers",
+    ],
+
+    static_libs: [
+        "libgmock",
+    ],
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+}
+
 cc_test {
     name: "fdtostring_tests",
     host_supported: false,
@@ -43,26 +83,6 @@ cc_test {
             static_libs: ["libaudioutils"],
         },
     }
-}
-
-cc_binary {
-    name: "primitives_benchmark",
-    host_supported: true,
-    target: {
-        darwin: {
-            enabled: false,
-        },
-    },
-
-    srcs: ["primitives_benchmark.cpp"],
-    cflags: [
-        "-Werror",
-        "-Wall",
-    ],
-    static_libs: [
-        "libgoogle-benchmark",
-        "libaudioutils",
-    ],
 }
 
 cc_binary {
@@ -354,21 +374,6 @@ cc_test {
             static_libs: ["libaudioutils"],
         },
     }
-}
-
-cc_binary {
-    name: "statistics_benchmark",
-    host_supported: false,
-
-    srcs: ["statistics_benchmark.cpp"],
-    cflags: [
-        "-Werror",
-        "-Wall",
-    ],
-    static_libs: [
-        "libgoogle-benchmark",
-        "libaudioutils",
-    ],
 }
 
 cc_test {
