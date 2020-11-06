@@ -18,29 +18,33 @@
 #define ANDROID_AUDIO_BASE_UTILS_H
 
 #include "audio-base.h"
+#include "audio-hal-enums.h"
+#include "audio_common-base.h"
 
 /** Define helper values to iterate over enum, extend them or checking value validity.
- *  Those values are compatible with the O corresponding enum values.
+ *  Those values are compatible with the corresponding enum values.
  *  They are not macro like similar values in audio.h to avoid conflicting
  *  with the libhardware_legacy audio.h.
  */
 enum {
-    /** Number of audio stream available to vendors. */
+    AUDIO_STREAM_MIN = AUDIO_STREAM_VOICE_CALL,
+    /** Number of audio streams available to vendors. */
     AUDIO_STREAM_PUBLIC_CNT = AUDIO_STREAM_ASSISTANT + 1,
 
 #ifndef AUDIO_NO_SYSTEM_DECLARATIONS
-    /** Total number of stream handled by the policy*/
+    /** Total number of streams handled by the policy. */
     AUDIO_STREAM_FOR_POLICY_CNT= AUDIO_STREAM_REROUTING + 1,
 #endif
 
-   /** Total number of stream. */
+   /** Total number of streams. */
     AUDIO_STREAM_CNT          = AUDIO_STREAM_CALL_ASSISTANT + 1,
 
     AUDIO_SOURCE_MAX          = AUDIO_SOURCE_VOICE_PERFORMANCE,
     AUDIO_SOURCE_CNT          = AUDIO_SOURCE_MAX + 1,
 
-    AUDIO_MODE_MAX            = AUDIO_MODE_CALL_SCREEN,
-    AUDIO_MODE_CNT            = AUDIO_MODE_MAX + 1,
+    AUDIO_MICROPHONE_CHANNEL_MAPPING_CNT = AUDIO_MICROPHONE_CHANNEL_MAPPING_PROCESSED + 1,
+    AUDIO_MICROPHONE_LOCATION_CNT = AUDIO_MICROPHONE_LOCATION_PERIPHERAL + 1,
+    AUDIO_MICROPHONE_DIRECTIONALITY_CNT = AUDIO_MICROPHONE_DIRECTIONALITY_SUPER_CARDIOID + 1,
 
     /** For retrocompatibility AUDIO_MODE_* and AUDIO_STREAM_* must be signed. */
     AUDIO_DETAIL_NEGATIVE_VALUE = -1,
@@ -127,11 +131,6 @@ enum {
 
     AUDIO_USAGE_MAX           = AUDIO_USAGE_CALL_ASSISTANT,
     AUDIO_USAGE_CNT           = AUDIO_USAGE_CALL_ASSISTANT + 1,
-
-    AUDIO_PORT_CONFIG_ALL     = AUDIO_PORT_CONFIG_SAMPLE_RATE |
-                                AUDIO_PORT_CONFIG_CHANNEL_MASK |
-                                AUDIO_PORT_CONFIG_FORMAT |
-                                AUDIO_PORT_CONFIG_GAIN,
 }; // enum
 
 // Microphone Field Dimension Constants
