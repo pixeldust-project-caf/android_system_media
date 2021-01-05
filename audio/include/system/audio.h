@@ -201,10 +201,11 @@ static inline bool audio_is_global_session(audio_session_t session) {
     return session <= AUDIO_SESSION_OUTPUT_MIX;
 }
 
-/* These constants are used instead of "magic numbers" 2 and 8 for
- * stereo and multichannel channel counts.
+/* These constants are used instead of "magic numbers" for
+ * channel counts.
  */
 enum {
+    FCC_1 = 1,
     FCC_2 = 2,
     FCC_8 = 8,
 };
@@ -772,22 +773,26 @@ static inline bool audio_gain_config_are_equal(
     return lhs->ramp_duration_ms == rhs->ramp_duration_ms;
 }
 
-static inline bool audio_port_config_has_input_direction(const struct audio_port_config *port_cfg) {
-    switch (port_cfg->type) {
+static inline bool audio_has_input_direction(audio_port_type_t type, audio_port_role_t role) {
+    switch (type) {
     case AUDIO_PORT_TYPE_DEVICE:
-        switch (port_cfg->role) {
+        switch (role) {
         case AUDIO_PORT_ROLE_SOURCE: return true;
         case AUDIO_PORT_ROLE_SINK: return false;
         default: return false;
         }
     case AUDIO_PORT_TYPE_MIX:
-        switch (port_cfg->role) {
+        switch (role) {
         case AUDIO_PORT_ROLE_SOURCE: return false;
         case AUDIO_PORT_ROLE_SINK: return true;
         default: return false;
         }
     default: return false;
     }
+}
+
+static inline bool audio_port_config_has_input_direction(const struct audio_port_config *port_cfg) {
+    return audio_has_input_direction(port_cfg->type, port_cfg->role);
 }
 
 static inline bool audio_port_configs_are_equal(
@@ -1076,6 +1081,43 @@ typedef struct record_track_metadata {
     char dest_device_address[AUDIO_DEVICE_MAX_ADDRESS_LEN];
 } record_track_metadata_t;
 
+/** Metadata of a playback track for an in stream. */
+typedef struct playback_track_metadata_v7 {
+    struct playback_track_metadata base;
+    audio_channel_mask_t channel_mask;
+    char tags[AUDIO_ATTRIBUTES_TAGS_MAX_SIZE]; /* UTF8 */
+} playback_track_metadata_v7_t;
+
+/** Metadata of a record track for an out stream. */
+typedef struct record_track_metadata_v7 {
+    struct record_track_metadata base;
+    audio_channel_mask_t channel_mask;
+    char tags[AUDIO_ATTRIBUTES_TAGS_MAX_SIZE]; /* UTF8 */
+} record_track_metadata_v7_t;
+
+static inline void playback_track_metadata_to_v7(struct playback_track_metadata_v7 *dst,
+                                                 const struct playback_track_metadata *src) {
+    dst->base = *src;
+    dst->channel_mask = AUDIO_CHANNEL_NONE;
+    dst->tags[0] = '\0';
+}
+
+static inline void playback_track_metadata_from_v7(struct playback_track_metadata *dst,
+                                                   const struct playback_track_metadata_v7 *src) {
+    *dst = src->base;
+}
+
+static inline void record_track_metadata_to_v7(struct record_track_metadata_v7 *dst,
+                                               const struct record_track_metadata *src) {
+    dst->base = *src;
+    dst->channel_mask = AUDIO_CHANNEL_NONE;
+    dst->tags[0] = '\0';
+}
+
+static inline void record_track_metadata_from_v7(struct record_track_metadata *dst,
+                                                 const struct record_track_metadata_v7 *src) {
+    *dst = src->base;
+}
 
 /******************************
  *  Helper functions
@@ -1964,6 +2006,14 @@ static const audio_playback_rate_t AUDIO_PLAYBACK_RATE_INITIALIZER = {
     /* .mFallbackMode = */ AUDIO_TIMESTRETCH_FALLBACK_FAIL
 };
 
+#ifndef AUDIO_NO_SYSTEM_DECLARATIONS
+typedef enum {
+    AUDIO_OFFLOAD_NOT_SUPPORTED = 0,
+    AUDIO_OFFLOAD_SUPPORTED = 1,
+    AUDIO_OFFLOAD_GAPLESS_SUPPORTED = 2
+} audio_offload_mode_t;
+#endif // AUDIO_NO_SYSTEM_DECLARATIONS
+
 __END_DECLS
 
 /**
@@ -2100,5 +2150,6 @@ __END_DECLS
 #define AUDIO_OFFLOAD_CODEC_DOWN_SAMPLING  "music_offload_down_sampling"
 #define AUDIO_OFFLOAD_CODEC_DELAY_SAMPLES  "delay_samples"
 #define AUDIO_OFFLOAD_CODEC_PADDING_SAMPLES  "padding_samples"
+
 
 #endif  // ANDROID_AUDIO_CORE_H
