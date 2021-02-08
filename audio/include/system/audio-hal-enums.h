@@ -117,8 +117,7 @@ __BEGIN_DECLS
     V(AUDIO_CHANNEL_IN_TOP_LEFT, 0x200000u) \
     V(AUDIO_CHANNEL_IN_TOP_RIGHT, 0x400000u)
 #define AUDIO_CHANNEL_IN_OUT_MASK_LIST_DEF(V) \
-    V(AUDIO_CHANNEL_NONE, 0x0u) \
-    V(AUDIO_CHANNEL_INVALID, 0xC0000000u)
+    V(AUDIO_CHANNEL_NONE, 0x0u)
 // Input and output masks are defined via individual channels.
 #define AUDIO_CHANNEL_OUT_MASK_LIST_UNIQUE_DEF(V) \
     V(AUDIO_CHANNEL_OUT_MONO, AUDIO_CHANNEL_OUT_FRONT_LEFT) \
@@ -216,6 +215,9 @@ typedef enum {
                                AUDIO_CHANNEL_OUT_HAPTIC_A,
     AUDIO_CHANNEL_IN_ALL =
         AUDIO_CHANNEL_IN_DISCRETE_CHANNEL_LIST_DEF(AUDIO_DEFINE_BIT_MASK_V) 0,
+    // This value must be part of the enum, but it is not a valid mask,
+    // and thus it does not participate in to/from string conversions.
+    AUDIO_CHANNEL_INVALID = 0xC0000000u,
 } audio_channel_mask_t;
 
 // Due to the fact that flag values for input and output channels
@@ -488,9 +490,15 @@ enum {
     AUDIO_FORMAT_MAT_SUB_1_0           = 0x1u,
     AUDIO_FORMAT_MAT_SUB_2_0           = 0x2u,
     AUDIO_FORMAT_MAT_SUB_2_1           = 0x3u,
+
+    AUDIO_FORMAT_MPEGH_SUB_BL_L3       = 0x13u,
+    AUDIO_FORMAT_MPEGH_SUB_BL_L4       = 0x14u,
+    AUDIO_FORMAT_MPEGH_SUB_LC_L3       = 0x23u,
+    AUDIO_FORMAT_MPEGH_SUB_LC_L4       = 0x24u,
 };
 
 #define AUDIO_FORMAT_LIST_DEF(V) \
+    V(AUDIO_FORMAT_DEFAULT, AUDIO_FORMAT_PCM_MAIN) \
     V(AUDIO_FORMAT_PCM_16_BIT, AUDIO_FORMAT_PCM_MAIN | AUDIO_FORMAT_PCM_SUB_16_BIT) \
     V(AUDIO_FORMAT_PCM_8_BIT, AUDIO_FORMAT_PCM_MAIN | AUDIO_FORMAT_PCM_SUB_8_BIT) \
     V(AUDIO_FORMAT_PCM_32_BIT, AUDIO_FORMAT_PCM_MAIN | AUDIO_FORMAT_PCM_SUB_32_BIT) \
@@ -567,7 +575,12 @@ enum {
     V(AUDIO_FORMAT_LHDC, 0x28000000u) \
     V(AUDIO_FORMAT_LHDC_LL, 0x29000000u) \
     V(AUDIO_FORMAT_APTX_TWSP, 0x2A000000u) \
-    V(AUDIO_FORMAT_LC3, 0x2B000000u)
+    V(AUDIO_FORMAT_LC3, 0x2B000000u) \
+    V(AUDIO_FORMAT_MPEGH, 0x2C000000u) \
+    V(AUDIO_FORMAT_MPEGH_BL_L3, AUDIO_FORMAT_MPEGH | AUDIO_FORMAT_MPEGH_SUB_BL_L3) \
+    V(AUDIO_FORMAT_MPEGH_BL_L4, AUDIO_FORMAT_MPEGH | AUDIO_FORMAT_MPEGH_SUB_BL_L4) \
+    V(AUDIO_FORMAT_MPEGH_LC_L3, AUDIO_FORMAT_MPEGH | AUDIO_FORMAT_MPEGH_SUB_LC_L3) \
+    V(AUDIO_FORMAT_MPEGH_LC_L4, AUDIO_FORMAT_MPEGH | AUDIO_FORMAT_MPEGH_SUB_LC_L4)
 
 typedef enum {
     AUDIO_FORMAT_LIST_DEF(AUDIO_DEFINE_ENUM_SYMBOL_V)
@@ -575,7 +588,6 @@ typedef enum {
     // and thus don't participate in to/from string conversions.
     AUDIO_FORMAT_INVALID = 0xFFFFFFFFu,
     AUDIO_FORMAT_PCM = AUDIO_FORMAT_PCM_MAIN,
-    AUDIO_FORMAT_DEFAULT = AUDIO_FORMAT_PCM,
 } audio_format_t;
 
 inline const char* audio_format_to_string(audio_format_t t) {
