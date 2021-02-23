@@ -129,6 +129,13 @@ static inline audio_attributes_t attributes_initializer(audio_usage_t usage)
     return attributes;
 }
 
+static inline audio_attributes_t attributes_initializer_flags(audio_flags_mask_t flags)
+{
+    audio_attributes_t attributes = AUDIO_ATTRIBUTES_INITIALIZER;
+    attributes.flags = flags;
+    return attributes;
+}
+
 static inline void audio_flags_to_audio_output_flags(
                                            const audio_flags_mask_t audio_flags,
                                            audio_output_flags_t *flags)
@@ -1643,6 +1650,7 @@ static inline bool audio_is_valid_format(audio_format_t format)
         /* not reached */
     case AUDIO_FORMAT_DTS:
     case AUDIO_FORMAT_DTS_HD:
+    case AUDIO_FORMAT_IEC60958:
     case AUDIO_FORMAT_IEC61937:
     case AUDIO_FORMAT_DOLBY_TRUEHD:
     case AUDIO_FORMAT_EVRC:
