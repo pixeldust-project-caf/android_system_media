@@ -2017,6 +2017,16 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
             <notes>
               Video stabilization is enabled.
             </notes></value>
+            <value optional="true" hal_version="3.8">PREVIEW_STABILIZATION
+            <notes>
+              Preview stabilization, where the preview in addition to all other non-RAW streams are
+              stabilized with the same quality of stabilization, is enabled. This mode aims to give
+              clients a 'what you see is what you get' effect. In this mode, the FoV reduction will
+              be a maximum of 20 % both horizontally and vertically
+              (10% from left, right, top, bottom) for the given zoom ratio / crop region.
+              The resultant FoV will also be the same across all processed streams
+              (that have the same aspect ratio).
+            </notes></value>
           </enum>
           <description>Whether video stabilization is
           active.</description>
@@ -2048,7 +2058,27 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           (android.lens.opticalStabilizationMode), turning both modes on may
           produce undesirable interaction, so it is recommended not to enable
           both at the same time.
+
+          If video stabilization is set to "PREVIEW_STABILIZATION",
+          android.lens.opticalStabilizationMode is overridden. The camera sub-system may choose
+          to turn on hardware based image stabilization in addition to software based stabilization
+          if it deems that appropriate.
+          This key may be a part of the available session keys, which camera clients may
+          query via
+          {@link android.hardware.camera2.CameraCharacteristics#getAvailableSessionKeys|ACameraManager_getCameraCharacteristics}.
+          If this is the case, changing this key over the life-time of a capture session may
+          cause delays / glitches.
+
           </details>
+          <hal_details>
+          When this key is set to "PREVIEW_STABILIZATION",
+          for non-stalling buffers returned without errors, the time interval between notify shutter
+          timestamp and when buffers are returned to the camera framework, must be no more than 1
+          extra frame interval, relative to the case where this key is set to "OFF".
+
+          This is in order for look-ahead time period to be short enough
+          for preview to match video recording for real-time usage.
+          </hal_details>
           <tag id="BC" />
         </entry>
       </controls>
@@ -3702,7 +3732,7 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
               flashlight brightness level via
               {android.hardware.camera2.CameraManager#setTorchStrengthLevel}.
               If this value is equal to 1, flashlight brightness control is not supported.
-              This value will be -1 if the flash unit is not available.
+              The value for this key will be null for devices with no flash unit.
             </details>
           </entry>
           <entry name="strengthDefaultLevel" type="int32" visibility="public" hal_version="3.8">
@@ -3712,7 +3742,6 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
             <details>
               If flash unit is available this will be greater than or equal to 1 and less
               or equal to `android.flash.info.strengthMaximumLevel`.
-              If flash unit is not available this will be set to -1.
 
               Setting flashlight brightness above the default level
               (i.e.`android.flash.info.strengthDefaultLevel`) may make the device more
@@ -3720,6 +3749,8 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
               battery quicker than normal. To minimize such issues, it is recommended to
               start the flashlight at this default brightness until a user explicitly requests
               a brighter level.
+              Note that the value for this key will be null for devices with no flash unit.
+              The default level should always be > 0.
             </details>
           </entry>
         </namespace>
@@ -4224,6 +4255,12 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           If a camera device supports both OIS and digital image stabilization
           (android.control.videoStabilizationMode), turning both modes on may produce undesirable
           interaction, so it is recommended not to enable both at the same time.
+
+          If android.control.videoStabilizationMode is set to "PREVIEW_STABILIZATION",
+          android.lens.opticalStabilizationMode is overridden. The camera sub-system may choose
+          to turn on hardware based image stabilization in addition to software based stabilization
+          if it deems that appropriate. This key's value in the capture result will reflect which
+          OIS mode was chosen.
 
           Not all devices will support OIS; see
           android.lens.info.availableOpticalStabilization for
@@ -9667,6 +9704,15 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           with test patterns from on-device memory. In that case, it should be
           indistinguishable to the ISP whether the data came from the
           sensor interconnect bus (such as CSI2) or memory.
+
+          For privacy use cases, if the camera device:
+
+          * supports SOLID_COLOR or BLACK test patterns,
+          * is a logical multi-camera, and
+          * lists testPatternMode as a physical request key,
+
+          Each physical camera must support the same SOLID_COLOR and/or BLACK test patterns
+          as the logical camera.
           </hal_details>
         </entry>
       </controls>
