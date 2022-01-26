@@ -146,6 +146,9 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
     <typedef name="multiResolutionStreamConfigurationMap">
       <language name="java">android.hardware.camera2.params.MultiResolutionStreamConfigurationMap</language>
     </typedef>
+    <typedef name="deviceStateSensorOrientationMap">
+      <language name="java">android.hardware.camera2.params.DeviceStateSensorOrientationMap</language>
+    </typedef>
   </types>
 
   <namespace name="android">
@@ -2014,6 +2017,16 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
             <notes>
               Video stabilization is enabled.
             </notes></value>
+            <value optional="true" hal_version="3.8">PREVIEW_STABILIZATION
+            <notes>
+              Preview stabilization, where the preview in addition to all other non-RAW streams are
+              stabilized with the same quality of stabilization, is enabled. This mode aims to give
+              clients a 'what you see is what you get' effect. In this mode, the FoV reduction will
+              be a maximum of 20 % both horizontally and vertically
+              (10% from left, right, top, bottom) for the given zoom ratio / crop region.
+              The resultant FoV will also be the same across all processed streams
+              (that have the same aspect ratio).
+            </notes></value>
           </enum>
           <description>Whether video stabilization is
           active.</description>
@@ -2045,7 +2058,27 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           (android.lens.opticalStabilizationMode), turning both modes on may
           produce undesirable interaction, so it is recommended not to enable
           both at the same time.
+
+          If video stabilization is set to "PREVIEW_STABILIZATION",
+          android.lens.opticalStabilizationMode is overridden. The camera sub-system may choose
+          to turn on hardware based image stabilization in addition to software based stabilization
+          if it deems that appropriate.
+          This key may be a part of the available session keys, which camera clients may
+          query via
+          {@link android.hardware.camera2.CameraCharacteristics#getAvailableSessionKeys|ACameraManager_getCameraCharacteristics}.
+          If this is the case, changing this key over the life-time of a capture session may
+          cause delays / glitches.
+
           </details>
+          <hal_details>
+          When this key is set to "PREVIEW_STABILIZATION",
+          for non-stalling buffers returned without errors, the time interval between notify shutter
+          timestamp and when buffers are returned to the camera framework, must be no more than 1
+          extra frame interval, relative to the case where this key is set to "OFF".
+
+          This is in order for look-ahead time period to be short enough
+          for preview to match video recording for real-time usage.
+          </hal_details>
           <tag id="BC" />
         </entry>
       </controls>
@@ -3692,6 +3725,34 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
             this be power-dependent?</details>
             <tag id="FUTURE" />
           </entry>
+          <entry name="strengthMaximumLevel" type="int32" visibility="public" hal_version="3.8">
+            <description>Maximum flashlight brightness level.
+            </description>
+            <details>If this value is greater than 1, then the device supports controlling the
+              flashlight brightness level via
+              {android.hardware.camera2.CameraManager#setTorchStrengthLevel}.
+              If this value is equal to 1, flashlight brightness control is not supported.
+              The value for this key will be null for devices with no flash unit.
+            </details>
+          </entry>
+          <entry name="strengthDefaultLevel" type="int32" visibility="public" hal_version="3.8">
+            <description>Default flashlight brightness level to be set via
+              {android.hardware.camera2.CameraManager#setTorchStrengthLevel}.
+            </description>
+            <details>
+              If flash unit is available this will be greater than or equal to 1 and less
+              or equal to `android.flash.info.strengthMaximumLevel`.
+
+              Setting flashlight brightness above the default level
+              (i.e.`android.flash.info.strengthDefaultLevel`) may make the device more
+              likely to reach thermal throttling conditions and slow down, or drain the
+              battery quicker than normal. To minimize such issues, it is recommended to
+              start the flashlight at this default brightness until a user explicitly requests
+              a brighter level.
+              Note that the value for this key will be null for devices with no flash unit.
+              The default level should always be > 0.
+            </details>
+          </entry>
         </namespace>
         <entry name="colorTemperature" type="byte">
           <description>The x,y whitepoint of the
@@ -4194,6 +4255,12 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           If a camera device supports both OIS and digital image stabilization
           (android.control.videoStabilizationMode), turning both modes on may produce undesirable
           interaction, so it is recommended not to enable both at the same time.
+
+          If android.control.videoStabilizationMode is set to "PREVIEW_STABILIZATION",
+          android.lens.opticalStabilizationMode is overridden. The camera sub-system may choose
+          to turn on hardware based image stabilization in addition to software based stabilization
+          if it deems that appropriate. This key's value in the capture result will reflect which
+          OIS mode was chosen.
 
           Not all devices will support OIS; see
           android.lens.info.availableOpticalStabilization for
@@ -9187,7 +9254,26 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           <details>
           Also defines the direction of rolling shutter readout, which is from top to bottom in
           the sensor's coordinate system.
+
+          Starting with Android API level 32, camera clients that query the orientation via
+          {@link android.hardware.camera2.CameraCharacteristics#get} on foldable devices which
+          include logical cameras can receive a value that can dynamically change depending on the
+          device/fold state.
+          Clients are advised to not cache or store the orientation value of such logical sensors.
+          In case repeated queries to CameraCharacteristics are not preferred, then clients can
+          also access the entire mapping from device state to sensor orientation in
+          {@link android.hardware.camera2.params.DeviceStateSensorOrientationMap}.
+          Do note that a dynamically changing sensor orientation value in camera characteristics
+          will not be the best way to establish the orientation per frame. Clients that want to
+          know the sensor orientation of a particular captured frame should query the
+          android.logicalMultiCamera.activePhysicalId from the corresponding capture result and
+          check the respective physical camera orientation.
           </details>
+          <ndk_details>
+          Native camera clients must query android.info.deviceStateOrientations for the mapping
+          between device state and camera sensor orientation. Dynamic updates to the sensor
+          orientation are not supported in this code path.
+          </ndk_details>
           <tag id="BC" />
         </entry>
         <entry name="profileHueSatMapDimensions" type="int32"
@@ -9618,6 +9704,15 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
           with test patterns from on-device memory. In that case, it should be
           indistinguishable to the ISP whether the data came from the
           sensor interconnect bus (such as CSI2) or memory.
+
+          For privacy use cases, if the camera device:
+
+          * supports SOLID_COLOR or BLACK test patterns,
+          * is a logical multi-camera, and
+          * lists testPatternMode as a physical request key,
+
+          Each physical camera must support the same SOLID_COLOR and/or BLACK test patterns
+          as the logical camera.
           </hal_details>
         </entry>
       </controls>
@@ -11470,6 +11565,35 @@ xsi:schemaLocation="http://schemas.android.com/service/camera/metadata/ metadata
               without any buffer management HAL API. When this key is present and camera framework
               supports the buffer management API version, camera framework will interact with camera
               HAL using such version of buffer management API.
+          </details>
+        </entry>
+        <entry name="deviceStateSensorOrientationMap" type="int64" visibility="java_public"
+          synthetic="true" optional="true" typedef="deviceStateSensorOrientationMap"
+          hwlevel="limited">
+          <description>This lists the mapping between a device folding state and
+          specific camera sensor orientation for logical cameras on a foldable device.
+          </description>
+          <details>
+          Logical cameras on foldable devices can support sensors with different orientation
+          values. The orientation value may need to change depending on the specific folding
+          state. Information about the mapping between the device folding state and the
+          sensor orientation can be obtained in
+          {@link android.hardware.camera2.params.DeviceStateSensorOrientationMap}.
+          Device state orientation maps are optional and maybe present on devices that support
+          android.scaler.rotateAndCrop.
+          </details>
+        </entry>
+        <entry name="deviceStateOrientations" type="int64" visibility="ndk_public"
+          container="array" hwlevel="limited" hal_version="3.7">
+          <array>
+            <size>2</size>
+            <size>n</size>
+          </array>
+          <units>(device fold state, sensor orientation) x n</units>
+          <details>
+          HAL must populate the array with
+          (hardware::camera::provider::V2_5::DeviceState, sensorOrientation) pairs for each
+          supported device state bitwise combination.
           </details>
         </entry>
       </static>

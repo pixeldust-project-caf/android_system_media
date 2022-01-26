@@ -295,6 +295,10 @@ static tag_info_t android_flash_info[ANDROID_FLASH_INFO_END -
     { "available",                     TYPE_BYTE   },
     [ ANDROID_FLASH_INFO_CHARGE_DURATION - ANDROID_FLASH_INFO_START ] =
     { "chargeDuration",                TYPE_INT64  },
+    [ ANDROID_FLASH_INFO_STRENGTH_MAXIMUM_LEVEL - ANDROID_FLASH_INFO_START ] =
+    { "strengthMaximumLevel",          TYPE_INT32  },
+    [ ANDROID_FLASH_INFO_STRENGTH_DEFAULT_LEVEL - ANDROID_FLASH_INFO_START ] =
+    { "strengthDefaultLevel",          TYPE_INT32  },
 };
 
 static tag_info_t android_hot_pixel[ANDROID_HOT_PIXEL_END -
@@ -754,6 +758,8 @@ static tag_info_t android_info[ANDROID_INFO_END -
     [ ANDROID_INFO_SUPPORTED_BUFFER_MANAGEMENT_VERSION - ANDROID_INFO_START ] =
     { "supportedBufferManagementVersion",
                                         TYPE_BYTE   },
+    [ ANDROID_INFO_DEVICE_STATE_ORIENTATIONS - ANDROID_INFO_START ] =
+    { "deviceStateOrientations",       TYPE_INT64  },
 };
 
 static tag_info_t android_black_level[ANDROID_BLACK_LEVEL_END -
@@ -1407,6 +1413,10 @@ int camera_metadata_enum_snprint(uint32_t tag,
                     msg = "ON";
                     ret = 0;
                     break;
+                case ANDROID_CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION:
+                    msg = "PREVIEW_STABILIZATION";
+                    ret = 0;
+                    break;
                 default:
                     msg = "error: enum value out of range";
             }
@@ -1820,6 +1830,12 @@ int camera_metadata_enum_snprint(uint32_t tag,
             break;
         }
         case ANDROID_FLASH_INFO_CHARGE_DURATION: {
+            break;
+        }
+        case ANDROID_FLASH_INFO_STRENGTH_MAXIMUM_LEVEL: {
+            break;
+        }
+        case ANDROID_FLASH_INFO_STRENGTH_DEFAULT_LEVEL: {
             break;
         }
 
@@ -3182,6 +3198,9 @@ int camera_metadata_enum_snprint(uint32_t tag,
             }
             break;
         }
+        case ANDROID_INFO_DEVICE_STATE_ORIENTATIONS: {
+            break;
+        }
 
         case ANDROID_BLACK_LEVEL_LOCK: {
             switch (value) {
@@ -4060,6 +4079,12 @@ int camera_metadata_enum_value(uint32_t tag,
                     ret = 0;
                     break;
                 }
+                enumName = "PREVIEW_STABILIZATION";
+                if (strncmp(name, enumName, size) == 0) {
+                    *value = ANDROID_CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION;
+                    ret = 0;
+                    break;
+                }
             break;
         }
         case ANDROID_CONTROL_AE_AVAILABLE_ANTIBANDING_MODES: {
@@ -4508,6 +4533,12 @@ int camera_metadata_enum_value(uint32_t tag,
             break;
         }
         case ANDROID_FLASH_INFO_CHARGE_DURATION: {
+            break;
+        }
+        case ANDROID_FLASH_INFO_STRENGTH_MAXIMUM_LEVEL: {
+            break;
+        }
+        case ANDROID_FLASH_INFO_STRENGTH_DEFAULT_LEVEL: {
             break;
         }
 
@@ -6018,6 +6049,9 @@ int camera_metadata_enum_value(uint32_t tag,
                     ret = 0;
                     break;
                 }
+            break;
+        }
+        case ANDROID_INFO_DEVICE_STATE_ORIENTATIONS: {
             break;
         }
 

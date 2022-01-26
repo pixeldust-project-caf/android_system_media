@@ -210,6 +210,8 @@ typedef enum camera_metadata_tag {
     ANDROID_FLASH_INFO_AVAILABLE =                    // enum         | public       | HIDL v3.2
             ANDROID_FLASH_INFO_START,
     ANDROID_FLASH_INFO_CHARGE_DURATION,               // int64        | system       | HIDL v3.2
+    ANDROID_FLASH_INFO_STRENGTH_MAXIMUM_LEVEL,        // int32        | public       | HIDL v3.8
+    ANDROID_FLASH_INFO_STRENGTH_DEFAULT_LEVEL,        // int32        | public       | HIDL v3.8
     ANDROID_FLASH_INFO_END,
 
     ANDROID_HOT_PIXEL_MODE =                          // enum         | public       | HIDL v3.2
@@ -460,6 +462,7 @@ typedef enum camera_metadata_tag {
             ANDROID_INFO_START,
     ANDROID_INFO_VERSION,                             // byte         | public       | HIDL v3.3
     ANDROID_INFO_SUPPORTED_BUFFER_MANAGEMENT_VERSION, // enum         | system       | HIDL v3.4
+    ANDROID_INFO_DEVICE_STATE_ORIENTATIONS,           // int64[]      | ndk_public   | HIDL v3.7
     ANDROID_INFO_END,
 
     ANDROID_BLACK_LEVEL_LOCK =                        // enum         | public       | HIDL v3.2
@@ -686,6 +689,7 @@ typedef enum camera_metadata_enum_android_control_scene_mode {
 typedef enum camera_metadata_enum_android_control_video_stabilization_mode {
     ANDROID_CONTROL_VIDEO_STABILIZATION_MODE_OFF                    , // HIDL v3.2
     ANDROID_CONTROL_VIDEO_STABILIZATION_MODE_ON                     , // HIDL v3.2
+    ANDROID_CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION  , // HIDL v3.8
 } camera_metadata_enum_android_control_video_stabilization_mode_t;
 
 // ANDROID_CONTROL_AE_STATE

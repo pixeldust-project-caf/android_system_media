@@ -387,6 +387,10 @@
             ><a href="#static_android.flash.info.available">android.flash.info.available</a></li>
             <li
             ><a href="#static_android.flash.info.chargeDuration">android.flash.info.chargeDuration</a></li>
+            <li
+            ><a href="#static_android.flash.info.strengthMaximumLevel">android.flash.info.strengthMaximumLevel</a></li>
+            <li
+            ><a href="#static_android.flash.info.strengthDefaultLevel">android.flash.info.strengthDefaultLevel</a></li>
 
             <li
             ><a href="#static_android.flash.colorTemperature">android.flash.colorTemperature</a></li>
@@ -1167,6 +1171,10 @@
             ><a href="#static_android.info.version">android.info.version</a></li>
             <li
             ><a href="#static_android.info.supportedBufferManagementVersion">android.info.supportedBufferManagementVersion</a></li>
+            <li
+            ><a href="#static_android.info.deviceStateSensorOrientationMap">android.info.deviceStateSensorOrientationMap</a></li>
+            <li
+            ><a href="#static_android.info.deviceStateOrientations">android.info.deviceStateOrientations</a></li>
           </ul>
         </li>
       </ul> <!-- toc_section -->
@@ -4554,7 +4562,7 @@ capbility defined in <a href="#static_android.request.availableCapabilities">and
                 
           <tr class="entry" id="controls_android.control.videoStabilizationMode">
             <td class="entry_name
-             " rowspan="3">
+             " rowspan="5">
               android.<wbr/>control.<wbr/>video<wbr/>Stabilization<wbr/>Mode
             </td>
             <td class="entry_type">
@@ -4575,6 +4583,17 @@ capbility defined in <a href="#static_android.request.availableCapabilities">and
                   <li>
                     <span class="entry_type_enum_name">ON (v3.2)</span>
                     <span class="entry_type_enum_notes"><p>Video stabilization is enabled.<wbr/></p></span>
+                  </li>
+                  <li>
+                    <span class="entry_type_enum_name">PREVIEW_STABILIZATION (v3.8)</span>
+                    <span class="entry_type_enum_optional">[optional]</span>
+                    <span class="entry_type_enum_notes"><p>Preview stabilization,<wbr/> where the preview in addition to all other non-RAW streams are
+stabilized with the same quality of stabilization,<wbr/> is enabled.<wbr/> This mode aims to give
+clients a 'what you see is what you get' effect.<wbr/> In this mode,<wbr/> the FoV reduction will
+be a maximum of 20 % both horizontally and vertically
+(10% from left,<wbr/> right,<wbr/> top,<wbr/> bottom) for the given zoom ratio /<wbr/> crop region.<wbr/>
+The resultant FoV will also be the same across all processed streams
+(that have the same aspect ratio).<wbr/></p></span>
                   </li>
                 </ul>
 
@@ -4630,9 +4649,31 @@ Surface types that can be stabilized.<wbr/></p>
 (<a href="#controls_android.lens.opticalStabilizationMode">android.<wbr/>lens.<wbr/>optical<wbr/>Stabilization<wbr/>Mode</a>),<wbr/> turning both modes on may
 produce undesirable interaction,<wbr/> so it is recommended not to enable
 both at the same time.<wbr/></p>
+<p>If video stabilization is set to "PREVIEW_<wbr/>STABILIZATION",<wbr/>
+<a href="#controls_android.lens.opticalStabilizationMode">android.<wbr/>lens.<wbr/>optical<wbr/>Stabilization<wbr/>Mode</a> is overridden.<wbr/> The camera sub-system may choose
+to turn on hardware based image stabilization in addition to software based stabilization
+if it deems that appropriate.<wbr/>
+This key may be a part of the available session keys,<wbr/> which camera clients may
+query via
+<a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics.html#getAvailableSessionKeys">CameraCharacteristics#getAvailableSessionKeys</a>.<wbr/>
+If this is the case,<wbr/> changing this key over the life-time of a capture session may
+cause delays /<wbr/> glitches.<wbr/></p>
             </td>
           </tr>
 
+          <tr class="entries_header">
+            <th class="th_details" colspan="6">HAL Implementation Details</th>
+          </tr>
+          <tr class="entry_cont">
+            <td class="entry_details" colspan="6">
+              <p>When this key is set to "PREVIEW_<wbr/>STABILIZATION",<wbr/>
+for non-stalling buffers returned without errors,<wbr/> the time interval between notify shutter
+timestamp and when buffers are returned to the camera framework,<wbr/> must be no more than 1
+extra frame interval,<wbr/> relative to the case where this key is set to "OFF".<wbr/></p>
+<p>This is in order for look-ahead time period to be short enough
+for preview to match video recording for real-time usage.<wbr/></p>
+            </td>
+          </tr>
 
           <tr class="entry_spacer"><td class="entry_spacer" colspan="7"></td></tr>
            <!-- end of entry -->
@@ -10413,7 +10454,7 @@ capbility defined in <a href="#static_android.request.availableCapabilities">and
                 
           <tr class="entry" id="dynamic_android.control.videoStabilizationMode">
             <td class="entry_name
-             " rowspan="3">
+             " rowspan="5">
               android.<wbr/>control.<wbr/>video<wbr/>Stabilization<wbr/>Mode
             </td>
             <td class="entry_type">
@@ -10434,6 +10475,17 @@ capbility defined in <a href="#static_android.request.availableCapabilities">and
                   <li>
                     <span class="entry_type_enum_name">ON (v3.2)</span>
                     <span class="entry_type_enum_notes"><p>Video stabilization is enabled.<wbr/></p></span>
+                  </li>
+                  <li>
+                    <span class="entry_type_enum_name">PREVIEW_STABILIZATION (v3.8)</span>
+                    <span class="entry_type_enum_optional">[optional]</span>
+                    <span class="entry_type_enum_notes"><p>Preview stabilization,<wbr/> where the preview in addition to all other non-RAW streams are
+stabilized with the same quality of stabilization,<wbr/> is enabled.<wbr/> This mode aims to give
+clients a 'what you see is what you get' effect.<wbr/> In this mode,<wbr/> the FoV reduction will
+be a maximum of 20 % both horizontally and vertically
+(10% from left,<wbr/> right,<wbr/> top,<wbr/> bottom) for the given zoom ratio /<wbr/> crop region.<wbr/>
+The resultant FoV will also be the same across all processed streams
+(that have the same aspect ratio).<wbr/></p></span>
                   </li>
                 </ul>
 
@@ -10489,9 +10541,31 @@ Surface types that can be stabilized.<wbr/></p>
 (<a href="#controls_android.lens.opticalStabilizationMode">android.<wbr/>lens.<wbr/>optical<wbr/>Stabilization<wbr/>Mode</a>),<wbr/> turning both modes on may
 produce undesirable interaction,<wbr/> so it is recommended not to enable
 both at the same time.<wbr/></p>
+<p>If video stabilization is set to "PREVIEW_<wbr/>STABILIZATION",<wbr/>
+<a href="#controls_android.lens.opticalStabilizationMode">android.<wbr/>lens.<wbr/>optical<wbr/>Stabilization<wbr/>Mode</a> is overridden.<wbr/> The camera sub-system may choose
+to turn on hardware based image stabilization in addition to software based stabilization
+if it deems that appropriate.<wbr/>
+This key may be a part of the available session keys,<wbr/> which camera clients may
+query via
+<a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics.html#getAvailableSessionKeys">CameraCharacteristics#getAvailableSessionKeys</a>.<wbr/>
+If this is the case,<wbr/> changing this key over the life-time of a capture session may
+cause delays /<wbr/> glitches.<wbr/></p>
             </td>
           </tr>
 
+          <tr class="entries_header">
+            <th class="th_details" colspan="6">HAL Implementation Details</th>
+          </tr>
+          <tr class="entry_cont">
+            <td class="entry_details" colspan="6">
+              <p>When this key is set to "PREVIEW_<wbr/>STABILIZATION",<wbr/>
+for non-stalling buffers returned without errors,<wbr/> the time interval between notify shutter
+timestamp and when buffers are returned to the camera framework,<wbr/> must be no more than 1
+extra frame interval,<wbr/> relative to the case where this key is set to "OFF".<wbr/></p>
+<p>This is in order for look-ahead time period to be short enough
+for preview to match video recording for real-time usage.<wbr/></p>
+            </td>
+          </tr>
 
           <tr class="entry_spacer"><td class="entry_spacer" colspan="7"></td></tr>
            <!-- end of entry -->
@@ -11872,6 +11946,118 @@ again</p>
             <td class="entry_details" colspan="6">
               <p>1 second too long/<wbr/>too short for recharge? Should
 this be power-dependent?</p>
+            </td>
+          </tr>
+
+
+          <tr class="entry_spacer"><td class="entry_spacer" colspan="7"></td></tr>
+           <!-- end of entry -->
+        
+                
+          <tr class="entry" id="static_android.flash.info.strengthMaximumLevel">
+            <td class="entry_name
+             " rowspan="3">
+              android.<wbr/>flash.<wbr/>info.<wbr/>strength<wbr/>Maximum<wbr/>Level
+            </td>
+            <td class="entry_type">
+                <span class="entry_type_name">int32</span>
+
+              <span class="entry_type_visibility"> [public]</span>
+
+
+
+
+
+
+            </td> <!-- entry_type -->
+
+            <td class="entry_description">
+              <p>Maximum flashlight brightness level.<wbr/></p>
+            </td>
+
+            <td class="entry_units">
+            </td>
+
+            <td class="entry_range">
+            </td>
+
+            <td class="entry_hal_version">
+              <p>3.<wbr/>8</p>
+            </td>
+
+            <td class="entry_tags">
+            </td>
+
+          </tr>
+          <tr class="entries_header">
+            <th class="th_details" colspan="6">Details</th>
+          </tr>
+          <tr class="entry_cont">
+            <td class="entry_details" colspan="6">
+              <p>If this value is greater than 1,<wbr/> then the device supports controlling the
+flashlight brightness level via
+{android.<wbr/>hardware.<wbr/>camera2.<wbr/>Camera<wbr/>Manager#set<wbr/>Torch<wbr/>Strength<wbr/>Level}.<wbr/>
+If this value is equal to 1,<wbr/> flashlight brightness control is not supported.<wbr/>
+The value for this key will be null for devices with no flash unit.<wbr/></p>
+            </td>
+          </tr>
+
+
+          <tr class="entry_spacer"><td class="entry_spacer" colspan="7"></td></tr>
+           <!-- end of entry -->
+        
+                
+          <tr class="entry" id="static_android.flash.info.strengthDefaultLevel">
+            <td class="entry_name
+             " rowspan="3">
+              android.<wbr/>flash.<wbr/>info.<wbr/>strength<wbr/>Default<wbr/>Level
+            </td>
+            <td class="entry_type">
+                <span class="entry_type_name">int32</span>
+
+              <span class="entry_type_visibility"> [public]</span>
+
+
+
+
+
+
+            </td> <!-- entry_type -->
+
+            <td class="entry_description">
+              <p>Default flashlight brightness level to be set via
+{android.<wbr/>hardware.<wbr/>camera2.<wbr/>Camera<wbr/>Manager#set<wbr/>Torch<wbr/>Strength<wbr/>Level}.<wbr/></p>
+            </td>
+
+            <td class="entry_units">
+            </td>
+
+            <td class="entry_range">
+            </td>
+
+            <td class="entry_hal_version">
+              <p>3.<wbr/>8</p>
+            </td>
+
+            <td class="entry_tags">
+            </td>
+
+          </tr>
+          <tr class="entries_header">
+            <th class="th_details" colspan="6">Details</th>
+          </tr>
+          <tr class="entry_cont">
+            <td class="entry_details" colspan="6">
+              <p>If flash unit is available this will be greater than or equal to 1 and less
+or equal to <code><a href="#static_android.flash.info.strengthMaximumLevel">android.<wbr/>flash.<wbr/>info.<wbr/>strength<wbr/>Maximum<wbr/>Level</a></code>.<wbr/></p>
+<p>Setting flashlight brightness above the default level
+(i.<wbr/>e.<wbr/><code><a href="#static_android.flash.info.strengthDefaultLevel">android.<wbr/>flash.<wbr/>info.<wbr/>strength<wbr/>Default<wbr/>Level</a></code>) may make the device more
+likely to reach thermal throttling conditions and slow down,<wbr/> or drain the
+battery quicker than normal.<wbr/> To minimize such issues,<wbr/> it is recommended to
+start the flashlight at this default brightness until a user explicitly requests
+a brighter level.<wbr/>
+Note that the value for this key will be null for devices with no flash unit.<wbr/>
+The default level should always be &gt; 0.<wbr/></p>
             </td>
           </tr>
 
@@ -14298,6 +14484,11 @@ be "OFF",<wbr/> and it will become "ON" when the initialization is done.<wbr/></
 <p>If a camera device supports both OIS and digital image stabilization
 (<a href="#controls_android.control.videoStabilizationMode">android.<wbr/>control.<wbr/>video<wbr/>Stabilization<wbr/>Mode</a>),<wbr/> turning both modes on may produce undesirable
 interaction,<wbr/> so it is recommended not to enable both at the same time.<wbr/></p>
+<p>If <a href="#controls_android.control.videoStabilizationMode">android.<wbr/>control.<wbr/>video<wbr/>Stabilization<wbr/>Mode</a> is set to "PREVIEW_<wbr/>STABILIZATION",<wbr/>
+<a href="#controls_android.lens.opticalStabilizationMode">android.<wbr/>lens.<wbr/>optical<wbr/>Stabilization<wbr/>Mode</a> is overridden.<wbr/> The camera sub-system may choose
+to turn on hardware based image stabilization in addition to software based stabilization
+if it deems that appropriate.<wbr/> This key's value in the capture result will reflect which
+OIS mode was chosen.<wbr/></p>
 <p>Not all devices will support OIS; see
 <a href="#static_android.lens.info.availableOpticalStabilization">android.<wbr/>lens.<wbr/>info.<wbr/>available<wbr/>Optical<wbr/>Stabilization</a> for
 available controls.<wbr/></p>
@@ -16037,6 +16228,11 @@ be "OFF",<wbr/> and it will become "ON" when the initialization is done.<wbr/></
 <p>If a camera device supports both OIS and digital image stabilization
 (<a href="#controls_android.control.videoStabilizationMode">android.<wbr/>control.<wbr/>video<wbr/>Stabilization<wbr/>Mode</a>),<wbr/> turning both modes on may produce undesirable
 interaction,<wbr/> so it is recommended not to enable both at the same time.<wbr/></p>
+<p>If <a href="#controls_android.control.videoStabilizationMode">android.<wbr/>control.<wbr/>video<wbr/>Stabilization<wbr/>Mode</a> is set to "PREVIEW_<wbr/>STABILIZATION",<wbr/>
+<a href="#controls_android.lens.opticalStabilizationMode">android.<wbr/>lens.<wbr/>optical<wbr/>Stabilization<wbr/>Mode</a> is overridden.<wbr/> The camera sub-system may choose
+to turn on hardware based image stabilization in addition to software based stabilization
+if it deems that appropriate.<wbr/> This key's value in the capture result will reflect which
+OIS mode was chosen.<wbr/></p>
 <p>Not all devices will support OIS; see
 <a href="#static_android.lens.info.availableOpticalStabilization">android.<wbr/>lens.<wbr/>info.<wbr/>available<wbr/>Optical<wbr/>Stabilization</a> for
 available controls.<wbr/></p>
@@ -24223,6 +24419,14 @@ would not actually affect it).<wbr/></p>
 with test patterns from on-device memory.<wbr/> In that case,<wbr/> it should be
 indistinguishable to the ISP whether the data came from the
 sensor interconnect bus (such as CSI2) or memory.<wbr/></p>
+<p>For privacy use cases,<wbr/> if the camera device:</p>
+<ul>
+<li>supports SOLID_<wbr/>COLOR or BLACK test patterns,<wbr/></li>
+<li>is a logical multi-camera,<wbr/> and</li>
+<li>lists testPatternMode as a physical request key,<wbr/></li>
+</ul>
+<p>Each physical camera must support the same SOLID_<wbr/>COLOR and/<wbr/>or BLACK test patterns
+as the logical camera.<wbr/></p>
             </td>
           </tr>
 
@@ -26428,6 +26632,19 @@ upright on the device screen in its native orientation.<wbr/></p>
             <td class="entry_details" colspan="6">
               <p>Also defines the direction of rolling shutter readout,<wbr/> which is from top to bottom in
 the sensor's coordinate system.<wbr/></p>
+<p>Starting with Android API level 32,<wbr/> camera clients that query the orientation via
+<a href="https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics.html#get">CameraCharacteristics#get</a> on foldable devices which
+include logical cameras can receive a value that can dynamically change depending on the
+device/<wbr/>fold state.<wbr/>
+Clients are advised to not cache or store the orientation value of such logical sensors.<wbr/>
+In case repeated queries to CameraCharacteristics are not preferred,<wbr/> then clients can
+also access the entire mapping from device state to sensor orientation in
+<a href="https://developer.android.com/reference/android/hardware/camera2/params/DeviceStateSensorOrientationMap.html">DeviceStateSensorOrientationMap</a>.<wbr/>
+Do note that a dynamically changing sensor orientation value in camera characteristics
+will not be the best way to establish the orientation per frame.<wbr/> Clients that want to
+know the sensor orientation of a particular captured frame should query the
+<a href="#dynamic_android.logicalMultiCamera.activePhysicalId">android.<wbr/>logical<wbr/>Multi<wbr/>Camera.<wbr/>active<wbr/>Physical<wbr/>Id</a> from the corresponding capture result and
+check the respective physical camera orientation.<wbr/></p>
             </td>
           </tr>
 
@@ -27822,6 +28039,14 @@ would not actually affect it).<wbr/></p>
 with test patterns from on-device memory.<wbr/> In that case,<wbr/> it should be
 indistinguishable to the ISP whether the data came from the
 sensor interconnect bus (such as CSI2) or memory.<wbr/></p>
+<p>For privacy use cases,<wbr/> if the camera device:</p>
+<ul>
+<li>supports SOLID_<wbr/>COLOR or BLACK test patterns,<wbr/></li>
+<li>is a logical multi-camera,<wbr/> and</li>
+<li>lists testPatternMode as a physical request key,<wbr/></li>
+</ul>
+<p>Each physical camera must support the same SOLID_<wbr/>COLOR and/<wbr/>or BLACK test patterns
+as the logical camera.<wbr/></p>
             </td>
           </tr>
 
@@ -33213,6 +33438,120 @@ HIDL ICameraDevice version 3.<wbr/>5.<wbr/></p></span>
 without any buffer management HAL API.<wbr/> When this key is present and camera framework
 supports the buffer management API version,<wbr/> camera framework will interact with camera
 HAL using such version of buffer management API.<wbr/></p>
+            </td>
+          </tr>
+
+
+          <tr class="entry_spacer"><td class="entry_spacer" colspan="7"></td></tr>
+           <!-- end of entry -->
+        
+                
+          <tr class="entry" id="static_android.info.deviceStateSensorOrientationMap">
+            <td class="entry_name
+             " rowspan="3">
+              android.<wbr/>info.<wbr/>device<wbr/>State<wbr/>Sensor<wbr/>Orientation<wbr/>Map
+            </td>
+            <td class="entry_type">
+                <span class="entry_type_name">int64</span>
+
+              <span class="entry_type_visibility"> [java_public as deviceStateSensorOrientationMap]</span>
+
+              <span class="entry_type_synthetic">[synthetic] </span>
+
+              <span class="entry_type_hwlevel">[limited] </span>
+
+
+
+
+            </td> <!-- entry_type -->
+
+            <td class="entry_description">
+              <p>This lists the mapping between a device folding state and
+specific camera sensor orientation for logical cameras on a foldable device.<wbr/></p>
+            </td>
+
+            <td class="entry_units">
+            </td>
+
+            <td class="entry_range">
+            </td>
+
+            <td class="entry_hal_version">
+              <p>3.<wbr/>2</p>
+            </td>
+
+            <td class="entry_tags">
+            </td>
+
+          </tr>
+          <tr class="entries_header">
+            <th class="th_details" colspan="6">Details</th>
+          </tr>
+          <tr class="entry_cont">
+            <td class="entry_details" colspan="6">
+              <p>Logical cameras on foldable devices can support sensors with different orientation
+values.<wbr/> The orientation value may need to change depending on the specific folding
+state.<wbr/> Information about the mapping between the device folding state and the
+sensor orientation can be obtained in
+<a href="https://developer.android.com/reference/android/hardware/camera2/params/DeviceStateSensorOrientationMap.html">DeviceStateSensorOrientationMap</a>.<wbr/>
+Device state orientation maps are optional and maybe present on devices that support
+<a href="#controls_android.scaler.rotateAndCrop">android.<wbr/>scaler.<wbr/>rotate<wbr/>And<wbr/>Crop</a>.<wbr/></p>
+            </td>
+          </tr>
+
+
+          <tr class="entry_spacer"><td class="entry_spacer" colspan="7"></td></tr>
+           <!-- end of entry -->
+        
+                
+          <tr class="entry" id="static_android.info.deviceStateOrientations">
+            <td class="entry_name
+             " rowspan="3">
+              android.<wbr/>info.<wbr/>device<wbr/>State<wbr/>Orientations
+            </td>
+            <td class="entry_type">
+                <span class="entry_type_name">int64</span>
+                <span class="entry_type_container">x</span>
+
+                <span class="entry_type_array">
+                  2 x n
+                </span>
+              <span class="entry_type_visibility"> [ndk_public]</span>
+
+
+              <span class="entry_type_hwlevel">[limited] </span>
+
+
+
+
+            </td> <!-- entry_type -->
+
+            <td class="entry_description">
+            </td>
+
+            <td class="entry_units">
+              (device fold state,<wbr/> sensor orientation) x n
+            </td>
+
+            <td class="entry_range">
+            </td>
+
+            <td class="entry_hal_version">
+              <p>3.<wbr/>7</p>
+            </td>
+
+            <td class="entry_tags">
+            </td>
+
+          </tr>
+          <tr class="entries_header">
+            <th class="th_details" colspan="6">Details</th>
+          </tr>
+          <tr class="entry_cont">
+            <td class="entry_details" colspan="6">
+              <p>HAL must populate the array with
+(hardware::camera::provider::V2_<wbr/>5::DeviceState,<wbr/> sensorOrientation) pairs for each
+supported device state bitwise combination.<wbr/></p>
             </td>
           </tr>
 
