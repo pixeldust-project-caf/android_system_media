@@ -78,7 +78,9 @@ typedef enum {
     AUDIO_MODE_IN_COMMUNICATION = HAL_AUDIO_MODE_IN_COMMUNICATION,
     AUDIO_MODE_CALL_SCREEN = HAL_AUDIO_MODE_CALL_SCREEN,
 #ifndef AUDIO_NO_SYSTEM_DECLARATIONS
-    AUDIO_MODE_MAX            = AUDIO_MODE_CALL_SCREEN,
+    AUDIO_MODE_CALL_REDIRECT = 5,
+    AUDIO_MODE_COMMUNICATION_REDIRECT = 6,
+    AUDIO_MODE_MAX            = AUDIO_MODE_COMMUNICATION_REDIRECT,
     AUDIO_MODE_CNT            = AUDIO_MODE_MAX + 1,
 #endif // AUDIO_NO_SYSTEM_DECLARATIONS
 } audio_mode_t;
@@ -104,6 +106,7 @@ typedef enum {
     AUDIO_FLAG_CAPTURE_PRIVATE            = 0X2000,
     AUDIO_FLAG_CONTENT_SPATIALIZED        = 0X4000,
     AUDIO_FLAG_NEVER_SPATIALIZE           = 0X8000,
+    AUDIO_FLAG_CALL_REDIRECTION           = 0X10000,
 } audio_flags_mask_t;
 
 /* Audio attributes */
@@ -576,13 +579,12 @@ enum {
     AUDIO_PORT_CONFIG_CHANNEL_MASK = 0x2u,
     AUDIO_PORT_CONFIG_FORMAT       = 0x4u,
     AUDIO_PORT_CONFIG_GAIN         = 0x8u,
-#ifndef AUDIO_NO_SYSTEM_DECLARATIONS
     AUDIO_PORT_CONFIG_FLAGS        = 0x10u,
-#endif
     AUDIO_PORT_CONFIG_ALL          = AUDIO_PORT_CONFIG_SAMPLE_RATE |
                                      AUDIO_PORT_CONFIG_CHANNEL_MASK |
                                      AUDIO_PORT_CONFIG_FORMAT |
-                                     AUDIO_PORT_CONFIG_GAIN,
+                                     AUDIO_PORT_CONFIG_GAIN |
+                                     AUDIO_PORT_CONFIG_FLAGS
 };
 
 typedef enum {
@@ -882,12 +884,10 @@ static inline bool audio_port_configs_are_equal(
     }
     return
             lhs->config_mask == rhs->config_mask &&
-#ifndef AUDIO_NO_SYSTEM_DECLARATIONS
             ((lhs->config_mask & AUDIO_PORT_CONFIG_FLAGS) == 0 ||
                     (audio_port_config_has_input_direction(lhs) ?
                             lhs->flags.input == rhs->flags.input :
                             lhs->flags.output == rhs->flags.output)) &&
-#endif
             ((lhs->config_mask & AUDIO_PORT_CONFIG_SAMPLE_RATE) == 0 ||
                     lhs->sample_rate == rhs->sample_rate) &&
             ((lhs->config_mask & AUDIO_PORT_CONFIG_CHANNEL_MASK) == 0 ||
@@ -2114,11 +2114,20 @@ static const audio_playback_rate_t AUDIO_PLAYBACK_RATE_INITIALIZER = {
     /* .mFallbackMode = */ AUDIO_TIMESTRETCH_FALLBACK_FAIL
 };
 
-#ifndef AUDIO_NO_SYSTEM_DECLARATIONS
 typedef enum {
-    AUDIO_OFFLOAD_NOT_SUPPORTED = 0,
-    AUDIO_OFFLOAD_SUPPORTED = 1,
-    AUDIO_OFFLOAD_GAPLESS_SUPPORTED = 2
+    AUDIO_DIRECT_NOT_SUPPORTED = 0x0u,
+    AUDIO_DIRECT_OFFLOAD_SUPPORTED = 0x1u,
+    AUDIO_DIRECT_OFFLOAD_GAPLESS_SUPPORTED = 0x2u,
+    // TODO(b/211628732): may need an enum for direct pcm
+    AUDIO_DIRECT_BITSTREAM_SUPPORTED = 0x4u,
+} audio_direct_mode_t;
+
+#ifndef AUDIO_NO_SYSTEM_DECLARATIONS
+// TODO: Deprecate audio_offload_mode_t and use audio_direct_mode_t instead.
+typedef enum {
+    AUDIO_OFFLOAD_NOT_SUPPORTED = AUDIO_DIRECT_NOT_SUPPORTED,
+    AUDIO_OFFLOAD_SUPPORTED = AUDIO_DIRECT_OFFLOAD_SUPPORTED,
+    AUDIO_OFFLOAD_GAPLESS_SUPPORTED = AUDIO_DIRECT_OFFLOAD_GAPLESS_SUPPORTED
 } audio_offload_mode_t;
 #endif // AUDIO_NO_SYSTEM_DECLARATIONS
 
